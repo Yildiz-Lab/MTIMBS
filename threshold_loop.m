@@ -40,7 +40,7 @@ while loop_thresh == 'n' %while loop isn't broken
         A = sort(debx); A = A(round(frac_elim*length(A),0):end);
         
         try_thresh_mod = bc*double(A(1)); % for high noisy background, lots of ridgepoints means we want to take these out
-        try_thresh_modd = mean(debx) - 1.2*std(double(debx)); % for low background, we may just need to remove some extra ridge points
+        try_thresh_modd = mean(debx) - 1.21*std(double(debx)); % for low background, we may just need to remove some extra ridge points
         try_thresh = max(try_thresh_mod, try_thresh_modd);
         
         fprintf("Good Ridge Thresholds \n") %dialogue box asking for input
