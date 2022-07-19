@@ -18,8 +18,33 @@ while loop_thresh == 'n' %while loop isn't broken
         ridge_threshold = pthresh;
         pthresh = 0; %set it so we can break this if statement
     else
+        
+        %% Option to try and predict threshold values JS Edit 2022/07/19
+        debx = [];
+        for k = 1:size(x)
+            debx = [debx, image(x(k),y(k))];
+        end
+        
+         % Option to plot histogram of intensities for the ridge points
+%         figure(8)
+%         hh = histogram(debx, 'NumBins', 35);
+%         fit(hh.BinEdges(1:end-1)' + hh.BinWidth'/2, hh.Values', 'gauss1')
+        
+        frac_elim = mean(mean(image)) / mean(debx);
+        
+        background_estimate = mean(mean(image)) - mean(debx) * length(debx)/size(image,1)/size(image,2);
+        bc = 1 + power(background_estimate / mean(debx), 3.5);
+        %this correction shifts to deal with high background, low
+        %intensity. The choice of the power is subjective
+        
+        A = sort(debx); A = A(round(frac_elim*length(A),0):end);
+        
+        try_thresh_mod = bc*double(A(1)); % for high noisy background, lots of ridgepoints means we want to take these out
+        try_thresh_modd = mean(debx) - 1.2*std(double(debx)); % for low background, we may just need to remove some extra ridge points
+        try_thresh = max(try_thresh_mod, try_thresh_modd);
+        
         fprintf("Good Ridge Thresholds \n") %dialogue box asking for input
-        fprintf("Aim for somewhere between " +num2str(mean(mean(image))) + " - " + num2str(max( max(max(image))/2, 650) ) + "\n")
+        fprintf("Try Threshold " + num2str(ceil(try_thresh/5)*5) + "\n")
         ridge_threshold = input('Input an Intensity Threshold: '); %get threshold from user
     end
     
