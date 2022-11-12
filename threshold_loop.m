@@ -1,10 +1,15 @@
 function [tempx, tempy, ridge_threshold] = threshold_loop(x,y,image,pthresh)
 
+
 %%THRESHOLD LOOP
 %this function take in an array of points determined by the ridge function
 %and accepts an input from the use. the function loops over all points in
 %the array and removes them if they are below the threshold
 %it then asks the user if it did a good job and can stop looping
+
+% USER SET PARAM TO REDUCE INACCURATE AGGREGATE THRESHOLD SPOTS
+search_radius = 8;
+num_points = 6;
 
 if nargin < 4
     pthresh = 0;
@@ -43,6 +48,8 @@ while loop_thresh == 'n' %while loop isn't broken
         try_thresh_modd = mean(debx) - 1.21*std(double(debx)); % for low background, we may just need to remove some extra ridge points
         try_thresh = max(try_thresh_mod, try_thresh_modd);
         
+        %auto_thresh = auto_intensity(image)
+        
         fprintf("Good Ridge Thresholds \n") %dialogue box asking for input
         fprintf("Try Threshold " + num2str(ceil(try_thresh/5)*5) + "\n")
         ridge_threshold = input('Input an Intensity Threshold: '); %get threshold from user
@@ -64,6 +71,19 @@ while loop_thresh == 'n' %while loop isn't broken
             tempx(j)=[]; tempy(j)=[]; %if intensity is too low, remove point from image
         end
     end
+    
+    % JS Edit 2022/11/11 remove small clusters to deal with noisier
+    % aggregate backgrounds
+    
+    for j = length(tempx):-1:1
+        [xidx,~] = find(abs(tempx - tempx(j)) < search_radius);
+        [yidx,~] = find(abs(tempy - tempy(j)) < search_radius);
+        idx = intersect(xidx,yidx);
+        if length(idx) < num_points
+            tempx(j) = []; tempy(j) = [];
+        end
+    end
+    
     
     figure(1);
     plot(tempx,tempy,'r.',"tag","threshold_ridge"); %plot the thresholded points as red
