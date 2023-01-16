@@ -36,19 +36,19 @@ if isempty(dc)
         for i = 3:length(contents)
 
             dc = dir(fullfile(strcat(top_folder, '/', contents(i).name), '*.tif'));
-
-            fname = dc.name;
-            fpath = dc.folder;
-            fname_w_path = strcat(fpath, '/', fname);
-
-            I = imread(fname_w_path);
-            if nargin < 1
-                crop_area = [1 1 size(I,1) size(I,2)];
+            if ~isempty(dc)
+                fname = dc.name;
+                fpath = dc.folder;
+                fname_w_path = strcat(fpath, '/', fname);
+    
+                I = imread(fname_w_path);
+                if nargin < 1
+                    crop_area = [1 1 size(I,1) size(I,2)];
+                end
+                I = imcrop(I,crop_area);
+                imwrite(I, strcat(croppedsave,'/',fname));
             end
-            I = imcrop(I,crop_area);
-            imwrite(I, strcat(croppedsave,'/',fname));
         end
-
         if isempty(dc)
             error("There are no .tif files in this directory. Please verify this is the correct file location.")
         end
