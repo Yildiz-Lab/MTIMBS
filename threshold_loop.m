@@ -102,12 +102,27 @@ while loop_thresh == 'n' %while loop isn't broken
     coord = [0,0]; %filler to enter the while loop
     disp("Remove unwanted points by clicking. Press Enter once done.")
     while ~isempty(coord)
-        coord = click_for_coord(h,1);
+        %coord = click_for_coord(h,1);
+        [initialPress, release] = draw_box_chatGPT();
+        if isempty(initialPress)
+        	coord = [];
+        else
+            coord(1,1:2) = initialPress;
+            coord(2,1:2) = release;
+        end
+        
         % if selected remove from threshold
         if ~isempty(coord)
-            dist = pdist2([tempx,tempy],coord);      %distance between your selection and all points
-            [~, minIdx] = min(dist);            % index of minimum distance to points
-            tempx(minIdx) = []; tempy(minIdx) = [];
+            if size(coord,1) > 1
+                xv = [coord(1,1), coord(2,1), coord(2,1), coord(1,1), coord(1,1)];
+                yv = [coord(1,2), coord(1,2), coord(2,2), coord(2,2), coord(1,1)];
+                in = inpolygon(tempx,tempy,xv,yv);
+                tempx(in) = []; tempy(in) = [];
+            else % for single point and click which right now isn't an option
+                dist = pdist2([tempx,tempy],coord);      %distance between your selection and all points
+                [~, minIdx] = min(dist);            % index of minimum distance to points
+                tempx(minIdx) = []; tempy(minIdx) = [];
+            end
             delete(findobj("tag","threshold_ridge")); %get rid of the old threshold points
             
             % replot and find again
@@ -120,8 +135,15 @@ while loop_thresh == 'n' %while loop isn't broken
             end
         end
     end
-    
+    % a stupid way to reset the plots so that pressing enter will
+    % not skip the option to redo loop thresh
+    delete(findobj("tag","threshold_ridge")); %get rid of the old threshold points
+    % replot and find again
+    plot(tempx,tempy,'r.',"tag","threshold_ridge"); %plot the thresholded points as red
+    get(gca, 'Children');
+    h = findobj('tag', 'threshold_ridge');
     %%
+    
     loop_thresh = input('Use this threshold (y) or try again (n)? (y/n) \n','s'); %ask if the threshold was good
     %1 says try a new threshold, 0 says the threshold worked and break
     %the loop

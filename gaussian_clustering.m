@@ -72,26 +72,6 @@ if nargin < 3
 
 else
     
-    proceed = 'n';
-    
-    while proceed ~= 'y'
-    
-        num_MT = input("How many MTs are in the image? \n"); %ask for how many MTs to make
-        
-        if length(num_MT) > 1
-            idx = []; uidx = []; num_MT = [];
-            return
-        end
-        % only do it if the user is sure they entered the correct number of MTs
-        if num_MT < 25
-            proceed = 'y';
-        else
-            fprintf("This is a large number of MTs! Are you sure you meant " +num2str(num_MT)+ " total MTs? \n")
-            proceed = input("Proceed fitting " +num2str(num_MT)+ " MTs? (y/n) \n", 's');
-        end
-    
-    end
-    
     %num_MT = input("How many MTs are in the image? \n"); %ask for how many MTs to make
     
     % find the object that corresponds to the threshold_ridge
@@ -118,7 +98,9 @@ else
 %     end
     
     if manual_option == 'y'
-        means = click_for_coord(h, num_MT);
+        %means = click_for_coord(h, num_MT)
+        means = click_for_coord_chatGPT(h);
+        num_MT = size(means,1)
 
         PComponents = ones(num_MT);
         for j = 1:num_MT
@@ -133,6 +115,25 @@ else
         S = struct('mu',Mu,'Sigma',Sigma,'ComponentProportion',PComponents);
         gm = fitgmdist([x,y],num_MT,'Start',S,'RegularizationValue',0.1);
     else
+        proceed = 'n';
+    
+        while proceed ~= 'y'
+
+            num_MT = input("How many MTs are in the image? \n"); %ask for how many MTs to make
+
+            if length(num_MT) > 1
+                idx = []; uidx = []; num_MT = [];
+                return
+            end
+            % only do it if the user is sure they entered the correct number of MTs
+            if num_MT < 25
+                proceed = 'y';
+            else
+                fprintf("This is a large number of MTs! Are you sure you meant " +num2str(num_MT)+ " total MTs? \n")
+                proceed = input("Proceed fitting " +num2str(num_MT)+ " MTs? (y/n) \n", 's');
+            end
+
+        end
         gm = fitgmdist([x,y],num_MT,'RegularizationValue',0.1);
     end
 end

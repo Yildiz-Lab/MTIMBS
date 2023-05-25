@@ -52,9 +52,13 @@ end
 % gmm has a random aspect to it, about 40% of misfits can be corrected just
 % by running a second or third time.
 
+gmopt = input("Attempt Gaussian Fitting? (y/n) \n",'s');
 attempts = 0;
 attempt_gm = 'y';
 manual_option = 'n';
+if gmopt == 'n'
+    manual_option = 'y';
+end
 
 while attempt_gm == 'y'
 
