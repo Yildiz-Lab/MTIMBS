@@ -58,6 +58,7 @@ attempt_gm = 'y';
 manual_option = 'n';
 if gmopt == 'n'
     manual_option = 'y';
+    disp("Manually set the centers of the MTs")
 end
 
 while attempt_gm == 'y'

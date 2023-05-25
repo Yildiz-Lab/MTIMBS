@@ -21,7 +21,7 @@ function [initialPress, release] = draw_box_chatGPT(fhandle)
     isSpacePressed = false;
     
     % Wait for the initialPress to begin
-    disp('Hold down the mouse button and draw a box. Release the button when finished.');
+%     disp('Hold down the mouse button and draw a box. Release the button when finished.');
     while isempty(initialPress)
         % Check if Enter key is pressed
         if isSpacePressed

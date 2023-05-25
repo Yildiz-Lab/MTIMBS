@@ -100,7 +100,7 @@ while loop_thresh == 'n' %while loop isn't broken
     else
     
     coord = [0,0]; %filler to enter the while loop
-    disp("Remove unwanted points by clicking. Press Enter once done.")
+    disp("Remove unwanted points by clicking or drag to remove points in region. Press Enter once done.")
     while ~isempty(coord)
         %coord = click_for_coord(h,1);
         [initialPress, release] = draw_box_chatGPT();
@@ -109,6 +109,9 @@ while loop_thresh == 'n' %while loop isn't broken
         else
             coord(1,1:2) = initialPress;
             coord(2,1:2) = release;
+            if pdist2(initialPress,release) < 4
+                coord = initialPress;
+            end
         end
         
         % if selected remove from threshold
