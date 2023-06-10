@@ -28,13 +28,13 @@ for i = 1:size(Intensities,2)
     I = I(I > 0); %get rid of zeros
     I = I(~isnan(I));
     % can add in removing outliers here automatically...
-    I = I*exposure_time(i)/100; %normalized exposure time
+    I = I*100/exposure_time(i); %normalized exposure time
     cellI{i} = I;
-    compiled_data(1,i) = median(I);
+    compiled_data(1,i) = mean(I);
     compiled_data(2,i) = std(I)/sqrt(length(I));
 end
 
-concentrations
-compiled_data
+[~,title,~] = fileparts(filename);
+kdfit(concentrations, compiled_data(1,:), compiled_data(2,:), title);
 
 end
