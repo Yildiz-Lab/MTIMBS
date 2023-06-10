@@ -68,18 +68,51 @@ end
 %data_file = fullfile(top_folder, '/','MT_Intensities.txt');
 %writematrix([],data_file);
 
-% FOR XLSX FILE
-data_file_xlsx = fullfile(top_folder, '/' ,'MT_Intensities.xlsx');
-
-if isfile(data_file_xlsx)
-    overwrite_file = input("This file already exists. Would you like to overwrite? (y/n) \n", 's');
-    if overwrite_file == 'n'
-        return
+save_location=uigetdir;
+data_file_xlsx = fullfile(save_location, '/' ,'MT_Intensities.xlsx');
+if ~isfile(data_file_xlsx)
+    whole_data = [];
+    writematrix([],data_file_xlsx);
+else
+    append_file = input("This file already exists. Would you like to append? (y/n) \n", 's');
+    if append_file == 'y'
+        whole_data = readmatrix(data_file_xlsx);
     else
-        delete(data_file_xlsx)
+        return
     end
 end
-writematrix([],data_file_xlsx);
+
+concentration = input("Enter the concentration in nM \n");
+if ~isempty(whole_data)
+    append_col = find(whole_data(1,:) == concentration);
+else
+    append_col = [];
+end
+
+if isempty(append_col)
+    append_col = size(whole_data,2)+1;
+    exposure_time = input("Enter an Exposure Time: \n");
+    whole_data(1,append_col) = concentration;
+    whole_data(2,append_col) = exposure_time;
+    AllI = [];
+else
+    fprintf("This concentration already exists. Appending to existing with exposure time " + num2str(whole_data(2,append_col)) + " ms \n");
+    AllI = whole_data(3:end,append_col);
+    AllI = AllI(AllI > 0)';
+end
+
+% % FOR XLSX FILE
+% data_file_xlsx = fullfile(top_folder, '/' ,'MT_Intensities.xlsx');
+% 
+% if isfile(data_file_xlsx)
+%     overwrite_file = input("This file already exists. Would you like to overwrite? (y/n) \n", 's');
+%     if overwrite_file == 'n'
+%         return
+%     else
+%         delete(data_file_xlsx)
+%     end
+% end
+% writematrix([],data_file_xlsx);
 
 % suppress warnings from gmcluster > gmdistribution.fit > fitgmdist >
 % gaussian_clustering related to convergence at high MTs
@@ -90,7 +123,6 @@ warning('off',w.identifier);
 
 %mkdir(savedir)
 
-AllI = [];
 ridge_threshold = 0; %cheat to initialize with no initial ridge
 for f = 1:length(dc)
     fname = dc(f).name;
@@ -108,8 +140,11 @@ for f = 1:length(dc)
     %writematrix(AllI, data_file);
     % FOR XLSX FILE
     % can modify AllI or AllI' to have rows or cols respectively
-    writematrix(AllI', data_file_xlsx);
-
+%     writematrix(AllI', data_file_xlsx);
+    
+    % FORMAT/EXPORT XLSX FILE
+    whole_data(3:length(AllI)+2,append_col) = AllI';
+    writematrix(whole_data, data_file_xlsx);
 end
 
 % compiled analysis goes here
