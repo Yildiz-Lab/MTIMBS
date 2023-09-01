@@ -154,6 +154,8 @@ for f = 1:length(dc)
         input('please close open MT_intensities file and then press enter');
         writematrix(whole_data, data_file_xlsx);
     end
+    
+    fprintf("Total Number of MTs analyzed in this condition: " + num2str(length(AllI)) + "\n") 
 end
 
 % compiled analysis goes here
