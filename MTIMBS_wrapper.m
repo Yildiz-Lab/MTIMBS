@@ -14,7 +14,7 @@ function AllI = MTIMBS_wrapper(crop_area)
 %rectangle = [200 200 260 230];
 
 %% Prompt User to open the folder
-top_folder=uigetdir;
+top_folder=uigetdir(pwd,'Select folder of images or containing subfolders of images to crop');
 %cd(top_folder);
 %dc = dir('*.tif');
 
@@ -68,7 +68,7 @@ end
 %data_file = fullfile(top_folder, '/','MT_Intensities.txt');
 %writematrix([],data_file);
 
-save_location=uigetdir;
+save_location=uigetdir(pwd,'Select location to save MT Intensities xlsx');
 data_file_xlsx = fullfile(save_location, '/' ,'MT_Intensities.xlsx');
 if ~isfile(data_file_xlsx)
     whole_data = [];
@@ -101,6 +101,10 @@ else
     AllI = AllI(AllI > 0)';
 end
 
+fprintf("TO EXIT: If at any point you would like to quit, press 'ctrl + c' to exit \n")
+
+skip_NGMM = input("Turn off automated number of gaussian estimation? (y/n) \n",'s');
+
 % % FOR XLSX FILE
 % data_file_xlsx = fullfile(top_folder, '/' ,'MT_Intensities.xlsx');
 % 
@@ -130,7 +134,7 @@ for f = 1:length(dc)
     fname_w_path = strcat(fpath, '/', fname);
     
     % now run the intensity_measurement
-    [corrected_intensities, ridge_threshold] = MTIMBS(fname_w_path, ridge_threshold);
+    [corrected_intensities, ridge_threshold] = MTIMBS(fname_w_path, ridge_threshold, skip_NGMM);
     AllI = [AllI, corrected_intensities];
     
     % sort option will save in increasing order
@@ -144,7 +148,12 @@ for f = 1:length(dc)
     
     % FORMAT/EXPORT XLSX FILE
     whole_data(3:length(AllI)+2,append_col) = AllI';
-    writematrix(whole_data, data_file_xlsx);
+    try
+        writematrix(whole_data, data_file_xlsx);
+    catch
+        input('please close open MT_intensities file and then press enter');
+        writematrix(whole_data, data_file_xlsx);
+    end
 end
 
 % compiled analysis goes here
