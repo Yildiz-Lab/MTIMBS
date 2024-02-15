@@ -27,19 +27,23 @@ contents = dir(top_folder);
 % if isempty(dc)
 %     fprintf("There are no .tif files in this directory. Trying subfolders... \n")
 
-    color1save = strcat(top_folder, '/', 'color 1');
-    color2save = strcat(top_folder, '/', 'color 2');
+    color1save = fullfile(top_folder, 'color 1');
+    color2save = fullfile(top_folder, 'color 2');
+    
+    winner = input("Which color is the winner, i.e. which color do you want to base the MT locations off of? (1 or 2) \n", 's')-48;
+    colors = {color1save, color2save};
+    
     if ~isfolder(color1save)
 
         mkdir(color1save);
         mkdir(color2save);
-        winner = input("Which color is the winner, i.e. which color do you want to base the MT locations off of? (1 or 2) \n", 's')-48;
+        
         for i = 4:length(contents)
 
 %             dc = dir(fullfile(strcat(top_folder, '/', contents(i).name), '*.tif'))
 %             fname = dc.name;
 %             fpath = dc.folder;
-            fname_w_path = fullfile(strcat(top_folder, '/', contents(i).name));
+            fname_w_path = fullfile(top_folder, contents(i).name);
     
             I = tiffreadVolume(fname_w_path);
             array_size = size(I,3);
@@ -50,14 +54,14 @@ contents = dir(top_folder);
                     
                     %c1fname = fullfile(color1save, contents(i).name)
                    % c2fname = fullfile(color2save, contents(i).name);
-                    colors = {color1save, color2save};
+                    
                     imwrite(I1, fullfile(color1save, contents(i).name));
                     imwrite(I2, fullfile(color2save, contents(i).name));
                     
                   
              else
                     %I = imcrop(I,crop_area);
-                  imwrite(I, strcat(color1save,'/',fname)); 
+                  imwrite(I, fullfile(color1save, fname)) 
              end
 
           end
@@ -98,6 +102,7 @@ end
 concentration = input("Enter the concentration in nM \n");
 if ~isempty(whole_data)
     append_col = find(whole_data(1,:) == concentration);
+    append_col = append_col(1);
     %append_col_2 = 
 else
     append_col = [];
