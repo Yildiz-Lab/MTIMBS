@@ -19,6 +19,7 @@ function [corrected_intensities, ridge_threshold, savedmts] = MTIMBS(filename, p
     % _params.txt: (.txt file) array of user set parameters
     % filename.fig: (.fig file) plot results of MT
 
+savedmts = {};
 ridge_threshold = previous_ridge_threshold;
 %this is just in case the user wants to cancel immediately
 % then it won't error
@@ -97,7 +98,7 @@ mean_intensities = zeros(1,max(idx));
 background_intensities = zeros(1,max(idx));
 corrected_intensities = zeros(1,max(idx));
 cmap = parula(max(idx)); %pretty color map for plotting
-savedmts = {}
+
 for i = length(uidx):-1:1 %for each MT, do background subtraction
     legend() 
     
@@ -106,14 +107,14 @@ for i = length(uidx):-1:1 %for each MT, do background subtraction
     yt = y(idx==uidx(i)); %make array of MT points to pass to line-drawer
     
     bestline = MT_line_draw(xt, yt, m, n);
-    savedmts= [savedmts;bestline];
+    savedmts= [savedmts; bestline];
     %draws a line over the MT and saves in a cell array
     %reports the points under the line as bestline
    
     plot(bestline(:,1), bestline(:,2), 's', 'MarkerFaceColor', cmap(i,:), "DisplayName", "MT "+num2str(i), 'tag', 'bestline')
     %show us the points that are picked out by the line
    
-    [corrected_intensities(i), mean_intensities(i), background_intensities(i) ] = intensity_measurement(bestline,image);
+    [corrected_intensities(i), mean_intensities(i), background_intensities(i) ] = intensity_measurement(bestline,image)
     %Measure the intensity for a fitted MT, records them in the storage
     %arrays
 

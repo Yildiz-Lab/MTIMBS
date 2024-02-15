@@ -71,8 +71,8 @@ contents = dir(top_folder);
 %         fprintf("Cropped Images Folder already exists! \n")
 %     end
     winnerfolder = colors{winner}
-    dc1 = dir(fullfile(winnerfolder, '*.tif'))
-    dc2 = dir(fullfile(colors{2/winner}, '*.tif'))
+    dc1 = dir(fullfile(winnerfolder, '*.tif'));
+    dc2 = dir(fullfile(colors{2/winner}, '*.tif'));
     
     
 
@@ -105,16 +105,22 @@ end
 
 if isempty(append_col)
     append_col = size(whole_data,2)+1;
-    exposure_time = input("Enter an Exposure Time: \n");
+    exposure_time = input("Enter an Exposure Time for winning Channel: \n");
+    exposure_time_2 = input("Enter an Exposure Time for other channel: \n");
     whole_data(1,append_col) = concentration;
     whole_data(2,append_col) = exposure_time;
     whole_data(1,append_col+1) = concentration;
-    whole_data(1,append_col+1) = exposure_time;
+    whole_data(2,append_col+1) = exposure_time_2;
+    whole_data(3,append_col) = winner;
+    whole_data(3,append_col+1) = mod(winner,2)+1;
     AllI = [];
+    AllI2 = [];
 else
     fprintf("This concentration already exists. Appending to existing with exposure time " + num2str(whole_data(2,append_col)) + " ms \n");
-    AllI = whole_data(3:end,append_col);
+    AllI = whole_data(4:end,append_col);
     AllI = AllI(AllI > 0)';
+    AllI2 = whole_data(4:end,append_col+1);
+    AllI2 = AllI2(AllI2 > 0)';
 end
 
 % % FOR XLSX FILE
@@ -149,10 +155,13 @@ for f = 1:length(dc)
     fname_w_path_2 = strcat(fpath2, '/', fname2);
     % now run the intensity_measurement
     [corrected_intensities, ridge_threshold, savedmts] = MTIMBS_competition(fname_w_path_1, ridge_threshold);
-    savedmts
-    [corrected_intensities_loser] = MTIMBSS(fname_w_path_2, savedmts);
+%     savedmts
+    corrected_intensities_loser = []; %just in case the previous was skipped then at least we initialize the empty to append
+    if ~isempty(corrected_intensities)
+        [corrected_intensities_loser] = MTIMBSS(fname_w_path_2, savedmts);
+    end
     AllI = [AllI, corrected_intensities];
-    AllI2 = corrected_intensities_loser;
+    AllI2 = [AllI2, corrected_intensities_loser];
     % sort option will save in increasing order
     %AllI = sort(AllI);
     
@@ -163,9 +172,11 @@ for f = 1:length(dc)
 %     writematrix(AllI', data_file_xlsx);
     
     % FORMAT/EXPORT XLSX FILE
-    whole_data(3:length(AllI)+2,append_col) = AllI';
-    whole_data(3:length(AllI2)+2,append_col+1) = AllI2';
+    whole_data(4:length(AllI)+3,append_col) = AllI';
+    whole_data(4:length(AllI2)+3,append_col+1) = AllI2';
     writematrix(whole_data, data_file_xlsx);
+    
+    fprintf("Total Number of MTs analyzed in this condition: " + num2str(length(AllI)) + "\n") 
 end
 
 % compiled analysis goes here
