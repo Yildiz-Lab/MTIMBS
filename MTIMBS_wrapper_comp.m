@@ -102,7 +102,6 @@ end
 concentration = input("Enter the concentration in nM \n");
 if ~isempty(whole_data)
     append_col = find(whole_data(1,:) == concentration);
-    append_col = append_col(1);
     %append_col_2 = 
 else
     append_col = [];
@@ -121,6 +120,7 @@ if isempty(append_col)
     AllI = [];
     AllI2 = [];
 else
+    append_col = append_col(1);
     fprintf("This concentration already exists. Appending to existing with exposure time " + num2str(whole_data(2,append_col)) + " ms \n");
     AllI = whole_data(4:end,append_col);
     AllI = AllI(AllI > 0)';
