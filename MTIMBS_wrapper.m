@@ -42,6 +42,12 @@ if isempty(dc)
                 fname_w_path = strcat(fpath, '/', fname);
     
                 I = imread(fname_w_path);
+%                 I = tiffreadvolume(fname_w_path);
+%                 if size(I,3) > 1
+%                     % do something special
+%                 else
+%                     I = I(:,:,1)
+%                 end
                 if nargin < 1
                     crop_area = [1 1 size(I,1) size(I,2)];
                 end
