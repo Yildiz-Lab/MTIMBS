@@ -29,7 +29,7 @@ contents = dir(top_folder);
 
     color1save = fullfile(top_folder, 'color 1');
     color2save = fullfile(top_folder, 'color 2');
-    
+      
     winner = input("Which color is the winner, i.e. which color do you want to base the MT locations off of? (1 or 2) \n", 's')-48;
     colors = {color1save, color2save};
     

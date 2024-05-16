@@ -1,4 +1,4 @@
-function [corrected_intensities, ridge_threshold, savedmts] = MTIMBS(filename, previous_ridge_threshold)
+function [corrected_intensities, ridge_threshold, savedmts] = MTIMBS_competition(filename, previous_ridge_threshold, skip_NGMM)
 
 %% Authors: Jon Fernandes and Joseph Slivka
 %  Date: Feb 10, 2022
@@ -53,10 +53,22 @@ end
 % gmm has a random aspect to it, about 40% of misfits can be corrected just
 % by running a second or third time.
 
-gmopt = input("Attempt Gaussian Fitting? (y/n) \n",'s');
-attempts = 0;
-attempt_gm = 'y';
-manual_option = 'n';
+% user given the option to skip
+if skip_NGMM == 'n'
+    gmopt = input("Attempt Gaussian Fitting? (y/n) \n",'s');
+    attempts = 0;
+    attempt_gm = 'y';
+    manual_option = 'n';
+else
+    attempts = 2;
+    gmopt = 'n';
+    attempt_gm = 'y';
+end
+
+% gmopt = input("Attempt Gaussian Fitting? (y/n) \n",'s');
+% attempts = 0;
+% attempt_gm = 'y';
+% manual_option = 'n';
 if gmopt == 'n'
     manual_option = 'y';
     disp("Manually set the centers of the MTs")
@@ -69,7 +81,11 @@ attempts = attempts + 1; % a running tracker just to ask for the manual option a
 % Ask about a manual setting of the centers to break the uniform prior
 % initialization
 if attempts > 2
-    manual_option = input("Try manually setting the centers of the MTs? (y/n) \n", 's');
+    if skip_NGMM == 'n'
+        manual_option = input("Try manually setting the centers of the MTs? (y/n) \n", 's');
+    else
+        manual_option = 'y';
+    end
 end
 
 % select which gaussian_clustering method will run
@@ -114,7 +130,7 @@ for i = length(uidx):-1:1 %for each MT, do background subtraction
     plot(bestline(:,1), bestline(:,2), 's', 'MarkerFaceColor', cmap(i,:), "DisplayName", "MT "+num2str(i), 'tag', 'bestline')
     %show us the points that are picked out by the line
    
-    [corrected_intensities(i), mean_intensities(i), background_intensities(i) ] = intensity_measurement(bestline,image)
+    [corrected_intensities(i), mean_intensities(i), background_intensities(i) ] = intensity_measurement(bestline,image);
     %Measure the intensity for a fitted MT, records them in the storage
     %arrays
 
@@ -134,13 +150,14 @@ user_stop = input("Do these MTs look correct? (y/n) \n", 's');
 
 if user_stop == 'x'
     corrected_intensities = [];
+    savedmts={};
     return
     
 elseif user_stop == 'n'
     
     delete(findobj("tag","bestline"))
     corrected_intensities = [];
-    
+    savedmts={};
     attempt_gm = input("Attempt GM fit again? (y/n) \n", 's');
     
     

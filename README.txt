@@ -2,9 +2,9 @@ README
 
 --- MTIMBS ---
 
-Authors: Jon Fernandes and Joseph Slivka
+Authors: Jon Fernandes, Parnika Kant, Joseph Slivka
 Email: joseph_slivka@berkeley.edu
-Date: July 13, 2022
+Date: May 15, 2024
 
 All rights reserved.
 

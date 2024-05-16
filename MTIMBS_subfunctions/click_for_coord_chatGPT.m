@@ -10,7 +10,7 @@ set(gcf, 'WindowButtonDownFcn', @mouseClickCallback);
 
 % Wait for the Enter key to be pressed
 disp('Left-click on points. Press Enter when finished.');
-pause;
+dummy=input('');
 
 % Display the coordinates of the clicked points
 % disp('Clicked coordinates:');

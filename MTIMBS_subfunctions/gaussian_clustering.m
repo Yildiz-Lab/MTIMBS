@@ -100,20 +100,22 @@ else
     if manual_option == 'y'
         %means = click_for_coord(h, num_MT)
         means = click_for_coord_chatGPT(h);
-        num_MT = size(means,1)
-
+        num_MT = size(means,1);
+        
         PComponents = ones(num_MT);
         for j = 1:num_MT
             Mu(j,:) = means(j,:);
             Sigma(:,:,j) = [100 1; 1 1]; % we just do 100 because these MTs are super long in one direction
         end
-
+  
         Mu;
         Sigma;
         PComponents = PComponents / sum(PComponents);
-
+        
         S = struct('mu',Mu,'Sigma',Sigma,'ComponentProportion',PComponents);
         gm = fitgmdist([x,y],num_MT,'Start',S,'RegularizationValue',0.1);
+        
+
     else
         proceed = 'n';
     
