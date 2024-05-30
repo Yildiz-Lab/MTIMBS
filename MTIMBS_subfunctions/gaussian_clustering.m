@@ -1,4 +1,4 @@
-function [idx,uidx,num_MT] = gaussian_clustering(x,y,manual_option)
+function [idx,uidx,num_MT,xycenters] = gaussian_clustering(x,y,manual_option,xycenters)
 
 %%Gaussian Micture Model to Separate MTs
 %function takes an array of bright points (x,y) in an image from ridge 
@@ -65,6 +65,8 @@ if nargin < 3
 
     [~, isample] = min(AICscores(:,tryMT));
     gm = gmstore{isample, tryMT};
+    
+    xycenters = [];
 
 % if specified, initialize the user clicking for gmm coordinate centers
 
@@ -99,12 +101,12 @@ else
     
     if manual_option == 'y'
         %means = click_for_coord(h, num_MT)
-        means = click_for_coord_chatGPT(h);
-        num_MT = size(means,1);
+        xycenters = click_for_coord_chatGPT(h, xycenters);
+        num_MT = size(xycenters,1);
         
         PComponents = ones(num_MT);
         for j = 1:num_MT
-            Mu(j,:) = means(j,:);
+            Mu(j,:) = xycenters(j,:);
             Sigma(:,:,j) = [100 1; 1 1]; % we just do 100 because these MTs are super long in one direction
         end
   

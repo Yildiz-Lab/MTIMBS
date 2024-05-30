@@ -1,9 +1,12 @@
-function points = click_for_coord_chatGPT(handle)
+function points = click_for_coord_chatGPT(handle, xycenters)
 % Click a number of points and press enter to exit
 % 2023/05/21 (made by chatGPT) edited slightly by Joseph
 
 % Initialize variables
-points = []; % to store the clicked points
+points = xycenters; % to store the clicked points
+if ~isempty(points)
+    scatter(xycenters(:,1), xycenters(:,2), 'w', 'filled', 'tag', 'selected_centers');
+end
 
 % Set up the mouse click callback
 set(gcf, 'WindowButtonDownFcn', @mouseClickCallback);

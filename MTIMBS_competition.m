@@ -49,6 +49,8 @@ end
 
 %% Gaussian Mixture Model to seperate MTs
 
+xycenters = []; % to store centers for later use
+
 % a loop here to give user the option to try a couple more times. Since the
 % gmm has a random aspect to it, about 40% of misfits can be corrected just
 % by running a second or third time.
@@ -90,14 +92,14 @@ end
 
 % select which gaussian_clustering method will run
 if manual_option == 'y'
-    [idx, uidx, num_MT] = gaussian_clustering(x,y,manual_option);
+    [idx, uidx, num_MT, xycenters] = gaussian_clustering(x,y,manual_option,xycenters);
 elseif manual_option == 'x'
     corrected_intensities = [];
     return
 elseif attempts > 1
-    [idx, uidx, num_MT] = gaussian_clustering(x,y,attempts);
+    [idx, uidx, num_MT, xycenters] = gaussian_clustering(x,y,attempts);
 else
-    [idx, uidx, num_MT] = gaussian_clustering(x,y);
+    [idx, uidx, num_MT, xycenters] = gaussian_clustering(x,y);
 end
 %makes arrays idx and iudx to index what points belong to what MTs
 %also returns the number of MTs iputted by user
@@ -148,6 +150,11 @@ end
 
 user_stop = input("Do these MTs look correct? (y/n) \n", 's');
 
+% try
+% 
+% if user_stop == 'y'
+%     return
+
 if user_stop == 'x'
     corrected_intensities = [];
     savedmts={};
@@ -158,8 +165,73 @@ elseif user_stop == 'n'
     delete(findobj("tag","bestline"))
     corrected_intensities = [];
     savedmts={};
-    attempt_gm = input("Attempt GM fit again? (y/n) \n", 's');
-    
+    if manual_option ~= 'y'
+        attempt_gm = input("Attempt GM fit again? (y/n) \n", 's');
+    else
+        attempt_gm = 'y';
+    % option to erase centers or not
+        if ~isempty(xycenters)
+            centersoption = input("Choose whether you would like to: \n 'q' manually reset all centers \n 'w' add to existing centers \n 'e' erase some centers then add \n 'n' abandon this image \n",'s');
+            if centersoption == 'x' || centersoption == 'n'
+                corrected_intensities = [];
+                savedmts={};
+                return
+                
+            elseif centersoption == 'e' %copied directly from threshold deletion
+                % Plot the clicked point
+                tempx = xycenters(:,1); tempy = xycenters(:,2); % CHECK THIS!!!
+                scatter(tempx, tempy, 'w', 'filled', 'tag', 'selected_centers');
+                coord = [0,0]; %filler to enter the while loop
+                disp("Remove unwanted points by clicking or drag to remove points in region. Press Enter once done.")
+                while ~isempty(coord)
+                    %coord = click_for_coord(h,1);
+                    [initialPress, release] = draw_box_chatGPT();
+                    if isempty(initialPress)
+                        coord = [];
+                    else
+                        coord(1,1:2) = initialPress;
+                        coord(2,1:2) = release;
+                        if pdist2(initialPress,release) < 4
+                            coord = initialPress;
+                        end
+                    end
+
+                    % if selected remove from threshold
+                    if ~isempty(coord)
+                        if size(coord,1) > 1
+                            xv = [coord(1,1), coord(2,1), coord(2,1), coord(1,1), coord(1,1)];
+                            yv = [coord(1,2), coord(1,2), coord(2,2), coord(2,2), coord(1,1)];
+                            in = inpolygon(tempx,tempy,xv,yv);
+                            tempx(in) = []; tempy(in) = [];
+                        else % for single point and click which right now isn't an option
+                            dist = pdist2([tempx,tempy],coord);      %distance between your selection and all points
+                            [~, minIdx] = min(dist);            % index of minimum distance to points
+                            tempx(minIdx) = []; tempy(minIdx) = [];
+                        end
+                        delete(findobj('tag','selected_centers')); %get rid of the old centers
+
+                        % replot and find again
+                        scatter(tempx,tempy,'w', 'filled', 'tag','selected_centers'); %plot the centers
+                        get(gca, 'Children');
+                        h = findobj('tag','selected_centers');
+
+                        if isempty(h) % fix 220418 to avoid deleting all points
+                            coord = []; % exit out of the loop
+                        end
+                    end
+                end
+                xycenters = [tempx, tempy];
+                delete(findobj('tag','selected_centers'));
+                
+            elseif centersoption == 'w'
+                xycenters = xycenters;
+                
+            else
+                xycenters = [];
+            end
+        end
+    end
+end
     
     % an unnecessary if statement, but necessary if we want to only save
     % the broken cases. When we want to save both, we'll put this at the
@@ -177,8 +249,13 @@ elseif user_stop == 'n'
 %         imwrite(transpose(image), strcat(dir, name, '/',name, '.tif'))
 %         return
 %     end
-    
-end
+% catch
+%     fprintf("Sorry, I didn't understand your response, let's try again")
+%     delete(findobj("tag","bestline"))
+%     corrected_intensities = [];
+%     savedmts={};
+%     attempt_gm = 'y';
+% end
 
 end % of while loop
 

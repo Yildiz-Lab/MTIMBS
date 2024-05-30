@@ -1,7 +1,7 @@
 function [] = MTIMBS_ncolor_wrapper()
 
 %% Authors: Jon Fernandes and Joseph Slivka and Parnika Kant!
-% Last Updated: 2024/5/8
+% Last Updated: 2024/5/30
 %% Description:
 
 % Run intensity_measurement function for all files in a folder
@@ -10,6 +10,10 @@ function [] = MTIMBS_ncolor_wrapper()
 % Now has the capacity to handle multicolor images
 % Requires the functions MTIMBS_competition for the primary color 
 % and MTIMBSB for the secondary colors
+
+% add paths
+addpath(fullfile(cd,'MTIMBS_subfunctions'))
+addpath(fullfile(cd,'analysis_codes'))
 
 %% Prompt User to open the folder with images
 fprintf("Please chose a folder of images to analyze \n");
