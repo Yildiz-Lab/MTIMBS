@@ -180,6 +180,9 @@ for f = 1:length(dc_name{1}) %gonna loop over all the files
     %collect the intensity values
     %collect the ridge threshold (to initialize next image)
     %collect the saved_MTs positions, to feed to other color images
+    if ~isempty(savedmts)
+    export_MT_coord(savedmts,fname_w_path{winner});
+    
 
     intensity_array = zeros(length(corrected_intensities),number_channels); 
     %make a matrix as long as corrected intensites, wide as num_channels
@@ -212,6 +215,8 @@ for f = 1:length(dc_name{1}) %gonna loop over all the files
     for i=1:number_channels
         writematrix(whole_data(:,:,i), data_file_xlsx,'UseExcel', 1,'Sheet',i);
         %rewrite the new excel file, with new intensities
+    end
+    
     end
        
     fprintf("Total Number of MTs analyzed in this condition: " + num2str(size(All_I,1)) + "\n") 
