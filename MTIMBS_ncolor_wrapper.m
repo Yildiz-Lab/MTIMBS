@@ -1,4 +1,4 @@
-function [] = MTIMBS_ncolor_wrapper()
+function MTIMBS_ncolor_wrapper()
 
 %% Authors: Jon Fernandes and Joseph Slivka and Parnika Kant!
 % Last Updated: 2024/5/30
@@ -227,7 +227,5 @@ end
 % compiled analysis goes here
 % figure(616)
 % histogram(AllI,floor(length(AllI)/8))
-
-end
 
 
