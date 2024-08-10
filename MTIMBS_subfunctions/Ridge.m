@@ -34,7 +34,7 @@ MX4     = padarray(CEN>NE & CEN>SW, [s s]);  % max diag 2
 MN1     = padarray(CEN<NN & CEN<SS, [s s]);  % min north-south
 MN2     = padarray(CEN<NE & CEN<SW, [s s]);  % min diag 1
 MN3     = padarray(CEN<WW & CEN<EE, [s s]);  % min west-east
-MN4     = padarray(CEN<NW & CEN<SE, [s s]);  % min diag 2
+MN4     = padarray(CEN<NWMrdg & CEN<SE, [s s]);  % min diag 2
 Cmax	= uint8(MX1+MX2+MX3+MX4);      % map of maxima count
 Cmin    = uint8(MN1+MN2+MN3+MN4);      % map of minima count
 %% =============	Suppress Low RR Contrast

@@ -24,7 +24,9 @@ ridge_threshold = previous_ridge_threshold;
 %this is just in case the user wants to cancel immediately
 % then it won't error
 %% Load and Get Ridges
-[x,y] = Ridge(filename); %do ridge function to pick out all the peak points
+% [x,y] = Ridge(filename); %do ridge function to pick out all the peak points
+%% Alternatively do a simple method of just above a certain threshold
+bwthreshold(filename);
 title(filename, 'Interpreter', 'none')
 
 image = imread(filename); %read in image intensities
@@ -39,7 +41,8 @@ if escape == 'n' || escape == 'x'
 end
 disp("If you want to skip image analysis at any time, press x")
 %do the thresholding: eliminate what should be background, needs user input
-[x, y, ridge_threshold] = threshold_loop(x,y,image,previous_ridge_threshold);
+% [x, y, ridge_threshold] = threshold_loop(x,y,image,previous_ridge_threshold);
+[x, y, ridge_threshold] = threshold_loop_bw(image,previous_ridge_threshold);
 %removes the low intensity points and returns the good threshold used
 if isempty(x)
     corrected_intensities = [];
