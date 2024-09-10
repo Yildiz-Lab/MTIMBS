@@ -11,7 +11,7 @@ function [tempx, tempy, ridge_threshold] = threshold_loop_bw(image,pthresh)
 search_radius = 8;
 num_points = 6;
 
-if nargin < 4
+if nargin < 2
     pthresh = 0;
 end
 
