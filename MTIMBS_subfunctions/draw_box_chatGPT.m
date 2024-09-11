@@ -28,6 +28,7 @@ function [initialPress, release] = draw_box_chatGPT(fhandle)
             % Return empty arrays for initialPress and release
             initialPress = [];
             release = [];
+            commandwindow; %reenter the command window for user input
             return;
         end       
         pause(0.01)
@@ -43,6 +44,7 @@ function [initialPress, release] = draw_box_chatGPT(fhandle)
             % Return empty arrays for initialPress and release
             initialPress = [];
             release = [];
+            commandwindow;
             return;
         end
         

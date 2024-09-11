@@ -101,7 +101,8 @@ else
     
     if manual_option == 'y'
         %means = click_for_coord(h, num_MT)
-        xycenters = click_for_coord_chatGPT(h, xycenters);
+        % xycenters = click_for_coord_chatGPT(h, xycenters);
+        xycenters = click_for_coord_chatGPT_v2(h, xycenters);
         num_MT = size(xycenters,1);
         
         PComponents = ones(num_MT);

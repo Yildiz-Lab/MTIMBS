@@ -34,6 +34,7 @@ image = transpose(image); %for some reason it's read in backwards+
 [m, n] = size(image); %going to need to know the bounds of the image
 
 %IS THE IMAGE WORTH DOING?
+commandwindow; %reenter the command window for user input
 escape = input("Analyze this image? (y/n) \n",'s');
 if escape == 'n' || escape == 'x'
     corrected_intensities = [];
