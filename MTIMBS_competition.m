@@ -116,10 +116,11 @@ end
 attempt_gm = 'n';
 
 % storage arrays
-mean_intensities = zeros(1,max(idx));
-background_intensities = zeros(1,max(idx));
-corrected_intensities = zeros(1,max(idx));
-cmap = parula(max(idx)); %pretty color map for plotting
+mean_intensities = zeros(1,length(uidx));
+background_intensities = zeros(1,length(uidx));
+corrected_intensities = zeros(1,length(uidx));
+cmap = parula(length(uidx)); %pretty color map for plotting
+
 
 for i = length(uidx):-1:1 %for each MT, do background subtraction
     legend() 

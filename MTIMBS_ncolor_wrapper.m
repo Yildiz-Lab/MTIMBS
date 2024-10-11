@@ -177,6 +177,7 @@ for f = 1:length(dc_name{1}) %gonna loop over all the files
 
     %% Now run the intensity measurement
     [corrected_intensities, ridge_threshold, savedmts] = MTIMBS_competition(fname_w_path{winner}, ridge_threshold, skip_NGMM);
+
     %collect the intensity values
     %collect the ridge threshold (to initialize next image)
     %collect the saved_MTs positions, to feed to other color images
