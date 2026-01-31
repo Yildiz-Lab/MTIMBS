@@ -33,7 +33,18 @@ fname_w_path = fullfile(top_folder, dc(1).name);
 %make the 3 a 4 on macOS machines
 I = tiffreadVolume(fname_w_path); 
 %read the tif file as one big boy
-number_channels = size(I,3);      
+try
+info = imfinfo(fname_w_path);
+desc = info.ImageDescription;   % metadata string
+% Find 'channels=' and extract number
+tokens = regexp(desc, 'channels=(\d+)', 'tokens');
+number_channels = str2double(tokens{1}{1});
+tokens = regexp(desc, 'slices=(\d+)', 'tokens');
+slices = str2double(tokens{1}{1});
+catch
+number_channels = size(I,3);
+slices = 1;
+end
 %figure out the number of colors in the images
 
 if number_channels > 1
@@ -42,17 +53,24 @@ else
     winner = 1;
 end
 
-colors = cell(1,number_channels); %initialize array for number of colors
+colors = cell(1,number_channels*length(dc)); %initialize array for number of colors
 
-for i = 1:length(colors)
-        colors{i} = fullfile(top_folder,strcat('color',num2str(i))); 
+for f = 1:length(dc)
+    [~,fname,~] = fileparts(dc(f).name);
+    movie_folder = fullfile(top_folder, fname);
+    mkdir(movie_folder);
+    for i = 1:number_channels
+        % colors{i} = fullfile(top_folder,strcat('color',num2str(i))); 
+        colors{i + (f-1)*number_channels} = fullfile(movie_folder,strcat('color',num2str(mod(i-1,number_channels)+1))); 
         %saving directory names of one color images
+    end
 end
 
 if ~isfolder(colors{1}) %if the folders don't already exist
     for i = 1:length(colors)
        mkdir(colors{i}); 
        %making the directory to save one color images
+       
     end
 
     for f = 1:length(dc) %make the 3 a 4 on macOS machines
@@ -64,8 +82,10 @@ if ~isfolder(colors{1}) %if the folders don't already exist
         %read the multi-color tif image for each file
 
         for i = 1:number_channels %for each channel
-            imwrite(I(:,:,i), fullfile(colors{i}, dc(f).name));
-            %save single color images, with same filename
+            for s = 1:slices
+                imwrite(I(:,:,i+(s-1)*number_channels), fullfile(colors{i+(f-1)*number_channels}, strcat(num2str(s),'_',dc(f).name)));
+                %save single color images, with same filename
+            end
         end
     end
 end

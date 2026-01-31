@@ -38,7 +38,11 @@ for k = 1:size(mod,1)
     ymod = bestline(:,2)+mod(k,2);
     
     % get intensities only if within the box
-    for j = size(xmod):-1:1
+    s = size(xmod,1);
+      if ~isscalar(s) || ~isreal(s)
+          error('xmod has unexpected size: %s', mat2str(s));
+      end
+    for j = size(xmod,1):-1:1
         if (xmod(j) > 0) && (xmod(j) < m) && (ymod(j) > 0) && (ymod(j) < n)
             a = a + double(image(xmod(j), ymod(j)));
             %running sum for background intensity

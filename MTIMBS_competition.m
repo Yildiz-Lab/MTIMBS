@@ -1,4 +1,4 @@
-function [corrected_intensities, ridge_threshold, savedmts] = MTIMBS_competition(filename, previous_ridge_threshold, skip_NGMM)
+function [corrected_intensities, ridge_threshold, savedmts] = MTIMBS_competition(stack, reference_channel, previous_ridge_threshold, skip_NGMM)
 
 %% Authors: Jon Fernandes and Joseph Slivka
 %  Date: Feb 10, 2022
@@ -19,19 +19,50 @@ function [corrected_intensities, ridge_threshold, savedmts] = MTIMBS_competition
     % _params.txt: (.txt file) array of user set parameters
     % filename.fig: (.fig file) plot results of MT
 
+% savedmts = {};
+% ridge_threshold = previous_ridge_threshold;
+% %this is just in case the user wants to cancel immediately
+% % then it won't error
+% %% Load and Get Ridges
+% % [x,y] = Ridge(filename); %do ridge function to pick out all the peak points
+% %% Alternatively do a simple method of just above a certain threshold
+% bwthreshold(filename);
+% title(filename, 'Interpreter', 'none')
+% 
+% image = imread(filename); %read in image intensities
+% image = transpose(image); %for some reason it's read in backwards+
+% [m, n] = size(image); %going to need to know the bounds of the image
+
+
+% initialize outputs/state
 savedmts = {};
 ridge_threshold = previous_ridge_threshold;
-%this is just in case the user wants to cancel immediately
-% then it won't error
-%% Load and Get Ridges
-% [x,y] = Ridge(filename); %do ridge function to pick out all the peak points
-%% Alternatively do a simple method of just above a certain threshold
-bwthreshold(filename);
-title(filename, 'Interpreter', 'none')
 
-image = imread(filename); %read in image intensities
-image = transpose(image); %for some reason it's read in backwards+
-[m, n] = size(image); %going to need to know the bounds of the image
+% extract chosen channel (M x N)
+image = stack(:, :, reference_channel);
+
+% If your previous code transposed the image after imread, replicate if needed.
+% Often imread orientation is correct; only transpose if your pipeline requires it.
+% Uncomment if your pipeline historically needed transpose:
+% img = img.';
+
+% get image size
+[m, n] = size(image);
+
+% Display and run bwthreshold-like step
+% If your bwthreshold accepts filenames, create a wrapper that accepts an image.
+% Here is a simple image-threshold display call (replace with your bwthreshold_image if available).
+% figure; imshow(image, []); title(sprintf('Channel %d', reference_channel), 'Interpreter', 'none');
+
+figure(1); clf;
+imagesc(image); title(sprintf('Channel %d', reference_channel), 'Interpreter', 'none'); %colorbar; axis image;
+hold on
+
+% Example bwthreshold_image: simple adaptive thresholding to get binary ridges
+% Replace this with your actual bwthreshold logic if different.
+% bw = imbinarize(mat2gray(image), 'adaptive', 'Sensitivity', 0.5);
+% figure; imshow(bw); title('bwthreshold result');
+
 
 %IS THE IMAGE WORTH DOING?
 commandwindow; %reenter the command window for user input
@@ -43,6 +74,7 @@ end
 disp("If you want to skip image analysis at any time, press x")
 %do the thresholding: eliminate what should be background, needs user input
 % [x, y, ridge_threshold] = threshold_loop(x,y,image,previous_ridge_threshold);
+% [x, y, ridge_threshold] = threshold_loop_bw(image,previous_ridge_threshold);
 [x, y, ridge_threshold] = threshold_loop_bw(image,previous_ridge_threshold);
 %removes the low intensity points and returns the good threshold used
 if isempty(x)
@@ -128,8 +160,9 @@ for i = length(uidx):-1:1 %for each MT, do background subtraction
     %% Use those thresholded ridge points to make a linear interpolation
     xt = x(idx==uidx(i)); %make array of MT points to pass to line-drawer
     yt = y(idx==uidx(i)); %make array of MT points to pass to line-drawer
-    
+
     bestline = MT_line_draw(xt, yt, m, n);
+
     savedmts= [savedmts; bestline];
     %draws a line over the MT and saves in a cell array
     %reports the points under the line as bestline
@@ -137,21 +170,25 @@ for i = length(uidx):-1:1 %for each MT, do background subtraction
     plot(bestline(:,1), bestline(:,2), 's', 'MarkerFaceColor', cmap(i,:), "DisplayName", "MT "+num2str(i), 'tag', 'bestline')
     %show us the points that are picked out by the line
    
-    [corrected_intensities(i), mean_intensities(i), background_intensities(i) ] = intensity_measurement(bestline,image);
+    [corrected_intensities(i), mean_intensities(i), background_intensities(i) ] = intensity_measurement(bestline, transpose(image));
     %Measure the intensity for a fitted MT, records them in the storage
     %arrays
 
 end
+
+% savedmts
+% mean_intensities
+% background_intensities
 
 % remove NaN's which sometimes happens if aggregates or points are
 % recognized by ridge but not the gaussian clustering algorithm (which we
 % want)
 corrected_intensities = corrected_intensities(~isnan(corrected_intensities));
 
-[dir, name, ~] = fileparts(filename);
-if ~isempty(dir)
-    dir = strcat(dir, '/');
-end
+% [dir, name, ~] = fileparts(filename);
+% if ~isempty(dir)
+%     dir = strcat(dir, '/');
+% end
 
 user_stop = input("Do these MTs look correct? (y/n) \n", 's');
 

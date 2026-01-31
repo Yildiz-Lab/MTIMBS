@@ -70,7 +70,7 @@ for k = 1:size(mod,1)
     ymod = bestline(:,2)+mod(k,2);
     
     % get intensities only if within the box
-    for j = size(xmod):-1:1
+    for j = size(xmod,1):-1:1
         if (xmod(j) > 0) && (xmod(j) < m) && (ymod(j) > 0) && (ymod(j) < n)
             a = a + double(image(xmod(j), ymod(j)));
             %running sum for background intensity
