@@ -1,4 +1,4 @@
-function [corrected_intensity, mean_intensity, min_background ] = off_color_measurement(bestline,image)
+function [corrected_intensity, mean_intensity, min_background, robust_intensity ] = off_color_measurement(bestline,image)
   
 %% This function takes in an array of points and an image
 % it records the average grayscale value of the image at those points,
@@ -21,18 +21,18 @@ for i = -1*num_steps:num_steps %go over the x steps
     new_line_x = bestline(:,1) + i;%create new x positions
 
     for j = -1*num_steps:num_steps %go over the y steps
-       new_line_y = bestline(:,2) + j;% create new y positions
+       new_line_y = bestline(:,2) + j; % create new y positions
        include=[];
        rc = double(0); %initialize a variable to store the sum of pixel intensities
        
-
        % plot(new_line_x, new_line_y, 'LineWidth',2); %use this to plot the
        % lines
-   
+       robust_intensity_trial = zeros(length(new_line_x),1);
        for ll = 1:lline
            if (new_line_x(ll) > 0) && (new_line_x(ll) < m) && (new_line_y(ll) > 0) && (new_line_y(ll) < n)
                %only sum the points if the point is in the image
                rc = rc + double(image(new_line_x(ll), new_line_y(ll)));
+               robust_intensity_trial(ll) = double(image(new_line_x(ll), new_line_y(ll)));
                % actually sum the intensity values at each pixel on new line
                include = [include, ll]; %keep track of how long the line is  
            end
@@ -43,6 +43,7 @@ for i = -1*num_steps:num_steps %go over the x steps
         %length of line, not counting line outside the image
        if  avg_intensity > mean_intensity
            mean_intensity = avg_intensity; %update mean intensity 
+           robust_intensity = robust_intensity_trial;
            % if its greater than before
        end
     end
@@ -85,5 +86,6 @@ for k = 1:size(mod,1)
     end
       
 end
-corrected_intensity = mean_intensity - min_background; 
+corrected_intensity = mean_intensity - min_background;
+robust_intensity = robust_intensity - min_background;
 end

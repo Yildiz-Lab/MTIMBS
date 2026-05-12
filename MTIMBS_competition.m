@@ -1,4 +1,4 @@
-function [corrected_intensities, ridge_threshold, savedmts] = MTIMBS_competition(stack, reference_channel, previous_ridge_threshold, skip_NGMM)
+function [corrected_intensities, ridge_threshold, savedmts, option_robust] = MTIMBS_competition(stack, reference_channel, previous_ridge_threshold, skip_NGMM)
 
 %% Authors: Jon Fernandes and Joseph Slivka
 %  Date: Feb 10, 2022
@@ -35,6 +35,7 @@ function [corrected_intensities, ridge_threshold, savedmts] = MTIMBS_competition
 
 
 % initialize outputs/state
+option_robust = 1;
 savedmts = {};
 ridge_threshold = previous_ridge_threshold;
 
@@ -162,17 +163,21 @@ for i = length(uidx):-1:1 %for each MT, do background subtraction
     yt = y(idx==uidx(i)); %make array of MT points to pass to line-drawer
 
     bestline = MT_line_draw(xt, yt, m, n);
-
-    savedmts= [savedmts; bestline];
-    %draws a line over the MT and saves in a cell array
-    %reports the points under the line as bestline
-   
     plot(bestline(:,1), bestline(:,2), 's', 'MarkerFaceColor', cmap(i,:), "DisplayName", "MT "+num2str(i), 'tag', 'bestline')
     %show us the points that are picked out by the line
-   
-    [corrected_intensities(i), mean_intensities(i), background_intensities(i) ] = intensity_measurement(bestline, transpose(image));
+    
+    % [corrected_intensities(i), mean_intensities(i), background_intensities(i) ] = intensity_measurement(bestline, transpose(image));
+    [corrected_intensities(i), mean_intensities(i), background_intensities(i), robust_intensity ] = intensity_measurement(bestline, transpose(image), option_robust);
     %Measure the intensity for a fitted MT, records them in the storage
     %arrays
+
+    if isnan(robust_intensity)
+        savedmts = [savedmts; bestline];
+    else
+        savedmts = [savedmts; bestline, robust_intensity];
+    end
+    %draws a line over the MT and saves in a cell array
+    %reports the points under the line as bestline
 
 end
 

@@ -241,12 +241,8 @@ for f = 1:N
     end
 
     % Run full intensity measurement on the chosen channel
-    [corrected_intensities, ridge_threshold, savedmts] = ...
+    [corrected_intensities, ridge_threshold, savedmts, option_robust] = ...
         MTIMBS_competition(stack, winner, ridge_threshold, skip_NGMM);
-
-    % optionally export coordinates if any found
-    if ~isempty(savedmts)
-        export_MT_coord(savedmts, filename);
     
 
     % Prepare intensity array: rows = number of MTs, cols = channels
@@ -262,7 +258,7 @@ for f = 1:N
         for i = 1:number_channels
             if i == winner, continue; end
             try
-                intensity_array(:, i) = MTIMBSB(stack(:, :, i), savedmts);
+                [intensity_array(:, i), savedmts] = MTIMBSB(stack(:, :, i), savedmts, option_robust);
             catch ME
                 % If the per-channel routine fails, fill with NaNs to flag it
                 warning('MTIMBSB failed for file %s channel %d: %s', files(f).name, i, ME.message);
@@ -270,6 +266,10 @@ for f = 1:N
             end
         end
     end
+
+    % optionally export coordinates if any found
+    if ~isempty(savedmts)
+        export_MT_coord(savedmts, filename, winner);
     
     %append the newly measured MT intensities to the old data
     All_I = [All_I; intensity_array];

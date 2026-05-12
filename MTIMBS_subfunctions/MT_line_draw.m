@@ -13,6 +13,7 @@ ind_to_check = [1, length(xt), find(yt==min(yt),1), find(yt==max(yt),1)];
 
     if length(ind_to_check) < 2
         bestline = [xt, yt];
+        kappa = nan(1,2);
     else
 
         for ii = ind_to_check %run through top, bottom, left, right
@@ -34,6 +35,10 @@ ind_to_check = [1, length(xt), find(yt==min(yt),1), find(yt==max(yt),1)];
 
                 xchk = interp1(t, Xtord, lint);     ychk = interp1(t, Ytord, lint);
                 bestline = unique(horzcat(transpose(round(xchk,0)), transpose(round(ychk,0))),'rows','stable');
+                
+                kappa = curvature_from_bestline(bestline);
+
+                bestline = [bestline, kappa];
 
             end
         end

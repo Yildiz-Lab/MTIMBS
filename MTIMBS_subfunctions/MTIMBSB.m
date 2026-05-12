@@ -1,4 +1,4 @@
-function corrected_intensities = MTIMBSB(image, savedmts)
+function [corrected_intensities, savedmts] = MTIMBSB(image, savedmts, option_robust)
 
 %% Authors: Jon Fernandes and Joseph Slivka and Parnika Kant!
 %  UpDate: May 8, 2024
@@ -24,8 +24,11 @@ function corrected_intensities = MTIMBSB(image, savedmts)
 for i = length(savedmts):-1:1 %for each MT, do background subtraction
    
     % [corrected_intensities(i), mean_intensities(i), background_intensities(i) ] = off_color_measurement(savedmts{i},image);
-    [A,~,~] = off_color_measurement(savedmts{i}, transpose(image));
+    [A,~,~,robust_intensity] = off_color_measurement(savedmts{i}, transpose(image));
     corrected_intensities(i)= A;
+    if option_robust
+        savedmts{i} = [savedmts{i}, robust_intensity];
+    end
     %Measure the intensity for a fitted MT, records them in the storage
     %arrays
 

@@ -1,4 +1,4 @@
-function [corrected_intensity, mean_intensity, min_background ] = intensity_measurement(bestline,image)
+function [corrected_intensity, mean_intensity, min_background, robust_intensity ] = intensity_measurement(bestline,image,option_robust)
   
 %% This function takes in an array of points and an image
 % it records the average grayscale value of the image at those points,
@@ -16,7 +16,17 @@ for ll = 1:length(bestline(:,1))
 end
 
 mean_intensity = rc / lline; %averages intensity by length of line
-    
+
+%% option to return robust_storage
+if option_robust
+    robust_intensity = zeros(length(bestline(:,1)),1);
+    for ll = 1:length(bestline(:,1))
+       robust_intensity(ll) = double(image(bestline(ll,1), bestline(ll,2)));
+    end
+else
+    robust_intensity = NaN;
+end
+
 %% Do Background Subtraction
 sp = 10; % how many pixels in any direction to move
 
@@ -59,3 +69,7 @@ for k = 1:size(mod,1)
       
 end
 corrected_intensity = mean_intensity - min_background; 
+
+if option_robust
+    robust_intensity = robust_intensity - min_background;
+end
