@@ -66,7 +66,11 @@ ddpy = polyder(dpy);
 d2xds2 = polyval(ddpx, s);
 d2yds2 = polyval(ddpy, s);
 
-kappa = abs(dxds .* d2yds2 - dyds .* d2xds2);
+% kappa = abs(dxds .* d2yds2 - dyds .* d2xds2);
+speed2 = dxds.^2 + dyds.^2;
+kappa = abs(dxds .* d2yds2 - dyds .* d2xds2) ./ (speed2).^(3/2);
+% ignore the ends since this is where parameterization might have edge
+% effects
 kappa(1:ceil(max_deg)) = nan(ceil(max_deg),1); kappa(end-ceil(max_deg)+1:end) = nan(ceil(max_deg),1);
 
 if size(kappa,1) ~= size(bestline,1)
